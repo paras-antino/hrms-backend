@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import get_settings
+import os
+
 
 settings = get_settings()
 
@@ -43,3 +45,13 @@ async def get_db() -> AsyncSession:
             raise
         finally:
             await session.close()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# convert Railway postgres:// to async psycopg
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace(
+        "postgres://",
+        "postgresql+psycopg://",
+        1
+    )
